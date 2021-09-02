@@ -5,7 +5,7 @@ function App() {
   const[messageDisplay, setMessageDisplay] = useState('');
 
   //Generating Date Object
-  const generateDateObject=(rawDate)=>{
+  const returnDateObject=(rawDate)=>{
     const splitDate = rawDate.split('-');
     const date = {
       year: splitDate[0],
@@ -13,6 +13,10 @@ function App() {
       day: splitDate[2]
     };
     
+    return date;
+  }
+  
+  const returnAllFormats = (date)=>{
     const ddmmyyyy = date.day+date.month+date.year;
     const mmddyyyy = date.month+date.day+date.year;
     const yyyymmdd = date.year+date.month+date.day;
@@ -21,6 +25,8 @@ function App() {
     const allFormats = [ddmmyyyy,mmddyyyy,yyyymmdd,ddmmyy];
     return allFormats;
   }
+    
+  
 
   //Check if all formats are Palindrome or not
   const checkPalindrome = (allFormats) => {
@@ -33,20 +39,95 @@ function App() {
     return false;
   }
 
-
-
-
+  //Fitting puzzle pieces in this function
   const onClickHandler = () => {
     //slice karo '-' se aur saare formats generate karo
     //saare formats ko reverse kar ke dekho palindrome hai ki nai
     //agar hai to show message
     //agar nahi to next day wala function and then keep checking the day with palindrome.
-    const allFormats = generateDateObject(dateEntered);
-    if(checkPalindrome(allFormats)){
-      setMessageDisplay("Cogratulations!! Your Birthday is a Palindrome")
+     let allDates = (returnAllFormats(returnDateObject(dateEntered)));
+     if(checkPalindrome(allDates)){
+       setMessageDisplay("Congratulations your birthday is a palindrome!");
+     }
+     else{
+       const [nextPalindrome, daysUntil] = checkNextPalindrome(returnDateObject(dateEntered));
+       setMessageDisplay("Um..sorry. Your birthday isn't a palindrome. The next plaindrome is after "+ daysUntil+ " days on " + nextPalindrome.day+"-"+nextPalindrome.month+"-"+nextPalindrome.year);
+     }
+  }
+
+  const isLeapYear = (year) =>{
+    let checkYear = Number(year);
+    if(checkYear%400 === 0){
+      return true;
     }
-    else{
-      setMessageDisplay("Umm..Not a Palindrome sorry");
+    if(checkYear%100 === 0){
+      return false;
+    }
+    if(year%4 === 0){
+      return true;
+    }
+    return false;
+  }
+
+  //to getNextDay 
+  const nextDay = (dateObject) => {
+    let year = Number(dateObject.year);
+    let month = Number(dateObject.month);
+    let day = Number(dateObject.day);
+    day = day+1;
+
+    var monthlyDays = [31,28,31,30,31,30,31,31,30,31,30,31];
+
+    //for Feb
+    if(month === 2){
+      //checkLeapYear
+      if(isLeapYear(year)){
+        if(day>29){
+          day = 1;
+          month++;
+        }
+      }
+      else {
+        if(day>28){
+          day = 1;
+          month++;
+        }
+      }
+    }
+    else {
+      if(day>monthlyDays[month-1]){
+        day =1;
+        month++;
+      }
+    }
+
+    if(month>12){
+      month =1;
+      year++;
+    }
+    return {
+      day: String(day),
+      month: String(month),
+      year: String(year)
+    };
+  }
+
+  //checkNextPalindrome
+  const checkNextPalindrome = (date) => {
+    //keep getting next date until the date is palindrome
+      let next = nextDay(date);
+      let count = 0;
+      while(1){
+      count++;
+      const allformats = returnAllFormats(next);
+      if(checkPalindrome(allformats)){
+        
+        return [next,count];
+      }
+      else{
+        next = nextDay(next);
+        
+      }
     }
   }
   
