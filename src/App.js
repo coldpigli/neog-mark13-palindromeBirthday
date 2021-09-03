@@ -105,6 +105,14 @@ function App() {
       month =1;
       year++;
     }
+    if(day<10){
+      day = '0' + String(day);
+      console.log(day)
+    }
+    if(month<10){
+      month ='0' + String(month);
+      console.log(month);
+    }
     return {
       day: String(day),
       month: String(month),
